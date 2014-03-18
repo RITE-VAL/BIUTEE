@@ -32,7 +32,7 @@ class TestNode(unittest.TestCase):
         self.assertEqual(len(n), 0)
 
     def test_node4(self):
-        n = node.Node(line="ROOT", parser=lambda x: x)
+        n = node.Node(line="ROOT", parser=None)
         self.assertEqual(n.dependance, None)
         self.assertEqual(n.subject, None)
         self.assertEqual(n.funcword, None)
