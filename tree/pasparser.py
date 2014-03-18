@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+
 import shlex
 import tree
 import node
+import json
 from collections import defaultdict
 from subprocess import Popen, PIPE
 
-CHAPS_PATH = '/Users/s_10018/local/dist/chapas-0.742'
+CHAPS_PATH = json.load(open("setting.json"))[u"CHAPAS_PATH"]
 CHAPS_CMD = "java -jar {path}/chapas.jar -I RAW".format(path=CHAPS_PATH)
 
 
