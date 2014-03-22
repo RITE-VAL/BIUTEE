@@ -6,8 +6,13 @@ import node
 import json
 from collections import defaultdict
 from subprocess import Popen, PIPE
+import sys, os
+import ConfigParser
 
-CHAPS_PATH = json.load(open("setting.json"))[u"CHAPAS_PATH"]
+iniPath = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../config.ini"))
+inifile = ConfigParser.SafeConfigParser()
+inifile.read(iniPath)
+CHAPS_PATH = unicode(inifile.get(u"path", u"CHAPAS_PATH"))
 CHAPS_CMD = "java -jar {path}/chapas.jar -I RAW".format(path=CHAPS_PATH)
 
 
