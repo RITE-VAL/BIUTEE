@@ -7,12 +7,12 @@ class Operation:
 
     @classmethod
     @abstractmethod
-    def getValue(cls, t, h, args):return
+    def getValue(cls, t, h, args=None):return
 
     @classmethod
     @abstractmethod
-    def translateTree(cls, h, args):pass
+    def translateTree(cls, h, args=None):pass
 
     @classmethod
     @abstractmethod
-    def translateT_H(cls, t_h, args):pass
+    def translateT_H(cls, t_h, args=None):pass

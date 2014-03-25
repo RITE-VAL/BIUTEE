@@ -26,11 +26,28 @@ class T_H:
         return [0, len(self.hs[0])]
     
     def search(self, w, b, k):
-        text = self.t # treeのリスト
-        hypothes = copy.copy(self.hs[0]) # treeのリスト(参照でなくコピーを操作して，サーチする)
-        args = []
-        value = FlipPos.getValue(text, hypothes, args)
-        self.proof.append([FlipPos(), args])
+        text = self.t # treeのリスト(リスト要素それぞれが1文を表している)
+        hypothes = copy.copy(self.hs[0]) # treeのリスト(リスト要素それぞれが1文を表している)(参照でなくコピーを操作して，サーチする)
+        operationList = [FlipPos, ]
+        argsDic = {} # operationごとにargsの設計は違うのでうまいことやってください
+        wordList = ["word", "word2"]
+        fposDic = {}
+        fposDic["insertPos"] = 1
+        fposDic["inserWord"] = wordList[0]
+        argsDic[FlipPos] = [fposDic]
+        for o in operationList:
+            args = argsDic[o]
+            value = o.getValue(text, hypothes, args)
+            
+            # argsをいい感じに変形させていって全部試す(forなりなんなり使ってください)
+            if "insertNum" in args:
+                args["insertNum"] = wordList[1]
+            if "insertNum" in args:
+                args["insertPos"] += 1
+            value = FlipPos.getValue(text, hypothes, args)
+            o.translateTree(hypothes, args) # 変形させてまた次の操作を探す
+        
+        self.proof.append([FlipPos, args])
         
         
         self.__feature = self.__getFeature()

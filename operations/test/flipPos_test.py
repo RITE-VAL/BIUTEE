@@ -14,16 +14,25 @@ class testFlipPos(unittest.TestCase):
     def testGetValue(self):
         t = PASParser().parse("こんにちは，太郎")
         h = PASParser().parse("こんにちは")
-        self.assertEqual(-1, FlipPos.getValue([1,2], t, h))
+        args = {}
+        args["insertPos"] = 1
+        args["word"] = "word"
+        self.assertEqual(-1, FlipPos.getValue(t, h, args))
     
     def testTranslateTree(self):
         h = PASParser().parse("こんにちは")
-        FlipPos.translateTree(h, [1,0])
+        args = {}
+        args["insertPos"] = 1
+        args["word"] = "word"
+        FlipPos.translateTree(h, args)
         self.assertListEqual(h, h)
 
     def testTranslateT_H(self):
         t_h = T_H("こんにちは", "こんにちは", 1)
-        FlipPos.translateT_H(t_h, [1,0])
+        args = {}
+        args["insertPos"] = 1
+        args["word"] = "word"
+        FlipPos.translateT_H(t_h, args)
         test = PASParser().parse("こんにちは")
         self.assertListEqual(t_h.hs[len(t_h.hs) -1], test)
 
