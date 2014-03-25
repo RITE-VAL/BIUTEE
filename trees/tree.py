@@ -20,7 +20,7 @@ class Tree(list):
         pass
 
     def flip_part_of_speech(self):
-        pass
+        return self
 
     def cut_multiword(self):
         pass
