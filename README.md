@@ -8,9 +8,12 @@ tree同士の類似度を計算できるようにしたい．(サーチの時の
 複数文を統合して得られる情報を扱えないのでどうにかしたい
 
 #ファイルの説明
-##config.ini
+##BIUTEE/config.ini
 設定用ファイル．  
-各人の環境に合わせて書き換えてください.
+各人の環境に合わせて書き換えてください.(下の感じ)  
+[path]  
+CHAPAS_PATH : /home/miura/chapas-0.742/  
+LivSVM_PATH : /home/miura/libsvm-3.17/python/a
 
 ##t_h.py
 ###self.t
