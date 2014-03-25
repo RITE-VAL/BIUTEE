@@ -14,10 +14,10 @@ tree同士の類似度を計算できるようにしたい．(サーチの時の
 
 ##t_h.py
 ###self.t
-text(treeの集合)
+text(treeのリスト)
 
 ###self.hs
-hypothesis(treeの集合)のリスト．リスト内の要素が変形の過程を記録している．
+hypothesis(treeのリスト)のリスト．リスト内の要素が変形の過程を記録している．
 
 ###self.proof
 operationのリスト．  
