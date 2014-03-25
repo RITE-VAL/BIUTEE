@@ -13,7 +13,7 @@ tree同士の類似度を計算できるようにしたい．(サーチの時の
 各人の環境に合わせて書き換えてください.(下の感じ)  
 [path]  
 CHAPAS_PATH : /home/miura/chapas-0.742/  
-LivSVM_PATH : /home/miura/libsvm-3.17/python/a
+LivSVM_PATH : /home/miura/libsvm-3.17/python/
 
 ##t_h.py
 ###self.t
