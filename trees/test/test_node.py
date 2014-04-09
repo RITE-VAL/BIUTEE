@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import sys,os
+import sys
+import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 import node
 import pasparser
+
 
 class TestNode(unittest.TestCase):
 
@@ -33,7 +35,7 @@ class TestNode(unittest.TestCase):
         self.assertEqual(len(n), 0)
 
     def test_node4(self):
-        n = node.Node(line="ROOT", parser=None)
+        n = node.Node([], parser=None, isroot=True)
         self.assertEqual(n.dependance, None)
         self.assertEqual(n.subject, None)
         self.assertEqual(n.funcword, None)

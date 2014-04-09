@@ -3,13 +3,14 @@
 import shlex
 import tree
 import node
-import json
 from collections import defaultdict
 from subprocess import Popen, PIPE
-import sys, os
+import os
 import ConfigParser
 
-iniPath = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../config.ini"))
+
+iniPath = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../config.ini"))
 inifile = ConfigParser.SafeConfigParser()
 inifile.read(iniPath)
 CHAPS_PATH = unicode(inifile.get(u"path", u"CHAPAS_PATH"))
@@ -71,6 +72,10 @@ def parse_cabocha_node(line):
     return inf
 
 
+def setRelationFromPAS(tree, word_id, pas_info):
+    [pas.info.split(' ')]
+
+
 class PASParser(object):
 
     def __init__(self, parser=chapas):
@@ -79,15 +84,19 @@ class PASParser(object):
     def parse(self, sentences):
         # 解析結果をTreeのリストとして返す
         trees = []
+        word_id = {}
         sentences = self.parser(sentences).split('EOS')[:-1]
         for sentence in sentences:
             tr = tree.Tree()
             for chunk in chunker(sentence.split('\n')):
                 nd = node.Node(line=chunk[0], parser=parse_cabocha_header)
                 for word in chunk[1:]:
-                    nd.append(node.Word(word, parser=parse_cabocha_node))
+                    word = node.Word(word, parser=parse_cabocha_node)
+                    if word.pas is not None:
+                        setRelationFromPAS(tree, word_id, word.pas)
+                    nd.append(word)
                 tr.append(nd)
-            tr.append(node.Node(line="ROOT", parser=None))
+            tr.append(node.Node([], parser=None, isroot=True))
             trees.append(tr)
         return trees
 

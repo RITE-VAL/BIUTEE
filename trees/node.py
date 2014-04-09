@@ -3,16 +3,20 @@
 
 class Node(list):
 
-    def __init__(self, line=None, parser=None):
+    def __init__(self, line, parser=None, isroot=False):
         list.__init__(self)
-        if type(line) != unicode:
-            line = unicode(line, "UTF-8")
+        if type(line) == list:
+            for l in line:
+                self.append(l)
         if parser is None:
             self.dependance = None
             self.subject = None
             self.funcword = None
-            self.append(Word("ROOT", parser=None))
+            if isroot:
+                self.append(Word(line="ROOT"))
         else:
+            if type(line) != unicode:
+                line = unicode(line, "UTF-8")
             node_info = parser(line)
             self.dependance = node_info['dependance']
             self.subject = node_info['subject']

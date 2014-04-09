@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import sys,os
+import sys
+import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import unittest
 import pasparser
 import tree
 import node
 
+
 class TestPASParser(unittest.TestCase):
 
     def setUp(self):
-        self.chapas_parser = pasparser.PASParser()
         self.ins1 = self.chapas_parser.parse("花子は太郎にプレゼントをあげた")
         self.ins2 = self.chapas_parser.parse("花子は果物屋に行った．\nそこで林檎を買った．")
+        self.chapas_parser = pasparser.PASParser()
         self.c1 = pasparser.chapas("花子は太郎にプレゼントをあげた").rstrip()
         self.c2 = pasparser.chapas("花子は果物屋に行った．\nそこで林檎を買った．").rstrip()
 
