@@ -67,3 +67,15 @@ t_h.hsを変形させる
 operation.pyの実体．
 今後こういう操作クラスを実装していく
 
+
+# trees/
+
+依存木の実装
+
+  import trees.pasparser  ## 要config.ini
+  
+  chapas_parser = pasparser.PASParser()
+  tree = pasparser.chapas("花子は太郎にプレゼントをあげた").rstrip()  # -> Tree Object
+
+現状Tree構造ではなくListで木を実装している
+
