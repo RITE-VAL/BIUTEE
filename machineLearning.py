@@ -18,7 +18,7 @@ class ML:
     def __parseData(self, dataPath):
         data = []
         for line in open(dataPath):
-            line = line.replace("\n", "")
+            line = line.rstrip()
             items = line.split("\t")
             if len(items) != 3:
                 continue
@@ -34,7 +34,7 @@ class ML:
     def __getWeight(self, modelPath):
         f = open(modelPath)
         for line in f:
-            line = line.replace("\n", "")
+            line = line.rstrip()
             if line.split(" ")[0] == "rho":
                 b = float(line.split(" ")[1])
             if line == 'SV':
@@ -43,7 +43,7 @@ class ML:
         weight = collections.defaultdict(lambda: 0)
     
         for line in f:
-            line = line.replace("\n", "")
+            line = line.rstrip()
             split = line.split(" ")
             coef = float(split[0])
             for feature in split[1:]:
