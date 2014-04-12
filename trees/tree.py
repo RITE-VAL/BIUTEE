@@ -14,69 +14,99 @@ class NotFoundRelationError(Exception):
         ))
 
 
-class Tree(list):
+class NotFoundNodePositionError(Exception):
+
+    def __init__(self, node_pos):
+        self.node_pos = node_pos
+
+    def __str__(self):
+        return repr("Not Found Position {} in the tree".format(
+            self.node_pos
+        ))
+
+
+class Tree(dict):
     '''
-    引数は未確定
+    Tree(dict)
+    root_pos: ルートノードのposition
+    last_position: Tree中最大の数となるposition
     '''
+
     def __init__(self):
-        list.__init__(self, )
-        self.relations = {}   # (1, 3) -> subject ?
+        dict.__init__(self)
+        self.root_pos = None
+        self.last_position = 0
 
-    def insert_node(self, newnode, parent_position):
-        '''
-        指定した親(self[parent_position]) の子として newnode を置きます
-        newnode : 新しく挿入したいノード(dependanceはparent_positionになる)
-        parent_position : newnodeの親ノードのposition(int)
-        '''
-        newnode.dependance = parent_position
-        self.append(newnode)
-        self.relations[(parent_position, len(self) - 1)] = None
+    def __len__(self):
+        return len(self.keys())
 
-    def move_subtree(self, node_position, after_parent_position):
+    def set_root(self, node_pos):
+        self.root_pos = node_pos
+
+    def get_node(self, position):
+        if position in self:
+            return self[position]
+        raise NotFoundNodePositionError(position)
+
+    def insert_node(self, newnode, position=None):
         '''
-        node_positonにあるノードをafter_parent_positionのノード配下に置きます
-        node_postion : 移動させたいノードの位置(int)
-        after_parent_position : 移動させたいノードの移動先ノードの位置(int)
+        newnode : 新しく挿入したいノード
+        position : newnodeの親ノードのposition(int)
         '''
-        before_parent_position = self[node_position].dependance
-        self[node_position].dependance = after_parent_position
-        self.relations[(after_parent_position, node_position)] = None
-        del self.relations[(before_parent_position, node_position)]
+        if position is None:
+            position = self.last_position + 1
+        self[position] = newnode
+        newnode.position = position
+        if newnode.dependent == -1:
+            self.set_root(position)
+        else:
+            self[newnode.dependent].add_child(position)
+        self.last_position = max(self.last_position, position)
+
+    def delete_node(self, node_pos):
+        '''
+        node_pos を Tree から消します
+        親ノードからnode_posに関する情報も消します
+        node_pos: 消したいノードのposision
+        '''
+        node = self[node_pos]
+        del self[node_pos]
+        self[node.dependent].remove_child(node_pos)
+
+    def move_subtree(self, node_pos, after_parent_pos):
+        '''
+        node_posにあるノードをafter_parent_posのノード配下に置きます
+        node_pos : 移動させたいノードの位置(int)
+        after_parent_pos : 移動させたいノードの移動先ノードの位置(int)
+        '''
+        self[self[node_pos].dependent].remove_child(node_pos)
+        self[node_pos].depenent = after_parent_pos
+        self[after_parent_pos].add_child(node_pos)
 
     def change_relation(self, node_pos, relation):
         '''
         ノードself[node_pos]と親ノードとの関係をrelationに変更します
         '''
-        parent_pos = self[node_pos].dependance
-        if not (parent_pos, node_pos) in self.relations:
-            raise NotFoundRelationError(node_pos, parent_pos)
-        self.relations[(parent_pos, node_pos)] = relation
+        pass
 
     def flip_part_of_speech(self, node_pos, word_pos, after_pos):
         '''
         ノードnode_pos中の位置word_posのWordの品詞をafter_posに変えます
         '''
-        self[node_pos][word_pos] = after_pos
+        pass
 
     def cut_multiword(self, node_pos, removed_word_pos):
         '''
         ノードnode_posをマルチワードとしてremoved_word_posにあるWordを除きます
         '''
-        self[node_pos].pop(removed_word_pos)
+        pass
 
     def singleword_to_multiword(self, node_pos):
         '''
         ノードnode_posとひとつ後のノードを結合してマルチワードにします
         node_pos : 結合させたいノードの位置(int)
         '''
-        node = self[node_pos].pop()
-        after_node = self[node_pos].pop()
-        newnode = node.Node(node + after_node)
-        newnode.dependance = node.dependance
-        newnode.subject = after_node.subject
-        newnode.funcword = after_node.funcword
-        self.insert(newnode, node_pos)
-
+        pass
 
 if __name__ == '__main__':
     tree = Tree()
