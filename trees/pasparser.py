@@ -10,7 +10,8 @@ import ConfigParser
 
 
 iniPath = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../config.ini"))
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../config.ini")
+)
 inifile = ConfigParser.SafeConfigParser()
 inifile.read(iniPath)
 CHAPS_PATH = unicode(inifile.get(u"path", u"CHAPAS_PATH"))
@@ -18,10 +19,8 @@ CHAPS_CMD = "java -jar {path}/chapas.jar -I RAW".format(path=CHAPS_PATH)
 
 
 def chapas(sentence, cmd=CHAPS_CMD):
-    p1 = Popen(shlex.split('echo "' + sentence + '"'), stdout=PIPE)
-    p2 = Popen(shlex.split(cmd), stdin=p1.stdout, stdout=PIPE)
-    p1.stdout.close()
-    out, err = p2.communicate()
+    p2 = Popen(shlex.split(cmd), stdin=PIPE, stdout=PIPE)
+    out, err = p2.communicate(input=sentence)
     return out.rstrip()
 
 
@@ -46,8 +45,9 @@ def chunker(datas):
 
 def parse_cabocha_header(line):
     inf = defaultdict(lambda: None)
-    data = line.rstrip().split(" ")
-    inf['dependance'] = int(data[2][:-1])
+    data = unicode(line, "UTF-8").rstrip().split(" ")
+    inf['pos'] = int(data[1])
+    inf['dependent'] = int(data[2][:-1])
     n = data[3].split('/')
     inf['subject'] = int(n[0])
     inf['funcword'] = int(n[1])
@@ -56,7 +56,7 @@ def parse_cabocha_header(line):
 
 def parse_cabocha_node(line):
     inf = defaultdict(lambda: None)
-    data = line.rstrip().split("\t")
+    data = unicode(line, "UTF-8").rstrip().split("\t")
     inf['string'] = data[0]
     tmp = data[1].split(',')
     inf['pos'] = tmp[0]
@@ -72,8 +72,19 @@ def parse_cabocha_node(line):
     return inf
 
 
-def setRelationFromPAS(tree, word_id, pas_info):
-    [pas.info.split(' ')]
+splitter = lambda x: [tuple(rel.split("=")) for rel in x.split(' ')]
+
+
+def setRelationFromPAS(tr):
+    word_info = {}
+    for pos in sorted(tr):
+        for word in tr[pos]:
+            if word.pas is not None:
+                for k, v in splitter(word.pas):
+                    if k == u'ID':
+                        word_info[int(v[1:-1])] = tr[pos].position
+                    elif k == u'ga' or k == u'o' or k == u'ni':
+                        tr[pos].set_relation(k, word_info[int(v[1:-1])])
 
 
 class PASParser(object):
@@ -84,19 +95,20 @@ class PASParser(object):
     def parse(self, sentences):
         # 解析結果をTreeのリストとして返す
         trees = []
-        word_id = {}
         sentences = self.parser(sentences).split('EOS')[:-1]
         for sentence in sentences:
             tr = tree.Tree()
-            for chunk in chunker(sentence.split('\n')):
-                nd = node.Node(line=chunk[0], parser=parse_cabocha_header)
+            for chunk in reversed(list(chunker(sentence.split('\n')))):
+                info = parse_cabocha_header(chunk[0])
+                nd = node.Node(
+                    info['dependent'], info['subject'], info['fucword']
+                )
                 for word in chunk[1:]:
-                    word = node.Word(word, parser=parse_cabocha_node)
-                    if word.pas is not None:
-                        setRelationFromPAS(tree, word_id, word.pas)
-                    nd.append(word)
-                tr.append(nd)
-            tr.append(node.Node([], parser=None, isroot=True))
+                    winfo = parse_cabocha_node(word)
+                    word = node.Word(winfo)
+                    nd.add_word(word)
+                tr.insert_node(nd, position=info['pos'])
+            setRelationFromPAS(tr)
             trees.append(tr)
         return trees
 
