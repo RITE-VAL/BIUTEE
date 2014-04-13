@@ -57,6 +57,13 @@ class Node(object):
     def add_word(self, word):
         self.words.append(word)
 
+    def insert_word(self, pos, word):
+        self.words.insert(pos, word)
+        return self.words
+
+    def remove_word(self, word_pos):
+        return self.words.pop(word_pos)
+
     def set_relation(self, rel, pos):
         self.rel[pos] = rel
 
@@ -72,20 +79,28 @@ class Word(object):
            空のWord
         Word(dict word_info)
            word_info は keyにstring, ne, pos, subpos, pas を持っている
+           string(必須): 文字列の表層
+           pos         : 品詞，例えばCabocha Formatの1つ目の項目(e.g. 名詞，動詞)
+           subpos      : サブの品詞 例えばCabocha Formatの2つ目の項目(e.g. サ変接続，自立)
+           ne          : 固有名詞
+           pas         : 述語項構造解析の結果 (e.g. ga="1" ni="2")
         '''
-        if len(args) == 0:
-            self.string = None
-            self.ne = None
-            self.pos = None
-            self.subpos = None
-            self.pas = None
-        else:
+        self.string = None
+        self.ne = None
+        self.pos = None
+        self.subpos = None
+        self.pas = None
+        if len(args) > 0:
             word_info = args[0]
             self.string = word_info['string']
-            self.ne = word_info['ne']
-            self.pos = word_info['pos']
-            self.subpos = word_info['subpos']
-            self.pas = word_info['pas']
+            if 'pos' in word_info:
+                self.pos = word_info['pos']
+            if 'subpos' in word_info:
+                self.subpos = word_info['subpos']
+            if 'ne' in word_info:
+                self.ne = word_info['ne']
+            if 'pas' in word_info:
+                self.pas = word_info['pas']
 
     def get_string(self):
         if self.string is not None:

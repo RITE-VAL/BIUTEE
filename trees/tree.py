@@ -60,6 +60,8 @@ class Tree(dict):
         if newnode.dependent == -1:
             self.set_root(position)
         else:
+            if not newnode.dependent in self:
+                raise NotFoundNodePositionError(newnode.dependent)
             self[newnode.dependent].add_child(position)
         self.last_position = max(self.last_position, position)
 
@@ -69,6 +71,8 @@ class Tree(dict):
         親ノードからnode_posに関する情報も消します
         node_pos: 消したいノードのposision
         '''
+        if not node_pos in self:
+            raise NotFoundNodePositionError(node_pos)
         node = self[node_pos]
         del self[node_pos]
         self[node.dependent].remove_child(node_pos)
@@ -79,6 +83,10 @@ class Tree(dict):
         node_pos : 移動させたいノードの位置(int)
         after_parent_pos : 移動させたいノードの移動先ノードの位置(int)
         '''
+        if not node_pos in self:
+            raise NotFoundNodePositionError(node_pos)
+        if not after_parent_pos in self:
+            raise NotFoundNodePositionError(after_parent_pos)
         self[self[node_pos].dependent].remove_child(node_pos)
         self[node_pos].depenent = after_parent_pos
         self[after_parent_pos].add_child(node_pos)
@@ -86,27 +94,48 @@ class Tree(dict):
     def change_relation(self, node_pos, relation):
         '''
         ノードself[node_pos]と親ノードとの関係をrelationに変更します
+        ない場合はNotFoundRelationErrorをなげます
         '''
-        pass
+        if not node_pos in self:
+            raise NotFoundNodePositionError(node_pos)
+        parent = self[node_pos].depenent
+        if node_pos in self[parent].rel:
+            raise NotFoundRelationError(node_pos, parent, relation)
+        self[parent].rel[node_pos] = relation
 
-    def flip_part_of_speech(self, node_pos, word_pos, after_pos):
+    def flip_part_of_speech(self, node_pos, after_pos):
         '''
-        ノードnode_pos中の位置word_posのWordの品詞をafter_posに変えます
+        ノードnode_pos中のWordの品詞をafter_posに変えます
+        変える単語は主辞(位置はsubject)の品詞です
         '''
-        pass
+        if not node_pos in self:
+            raise NotFoundNodePositionError(node_pos)
+        subject_pos = self[node_pos].subject
+        self[node_pos][subject_pos].pos = after_pos
 
     def cut_multiword(self, node_pos, removed_word_pos):
         '''
-        ノードnode_posをマルチワードとしてremoved_word_posにあるWordを除きます
+        ノードnode_posのremoved_word_posの位置にあるWordを除きます
+        Node(安全 運転 で) -> Node(運転 で) のようにします
+        node_pos: 語を除きたいNodeの位置
+        removed_word_pos: Node中で除きたい語の位置
+                          上記なら安全は0番目にあるので 0 を指定
+        返り値として 除いた Word object (上の例なら Word(安全)) が返ってきます
         '''
-        pass
+        if not node_pos in self:
+            raise NotFoundNodePositionError(node_pos)
+        return self[node_pos].remove_word(removed_word_pos)
 
-    def singleword_to_multiword(self, node_pos):
+    def singleword_to_multiword(self, node_pos, word, word_pos):
         '''
-        ノードnode_posとひとつ後のノードを結合してマルチワードにします
+        ノードnode_posにwordを追加してマルチワードにします
         node_pos : 結合させたいノードの位置(int)
+        word     : 追加したい語 (Word class)
+        word_pos : node_posの中で追加したい位置
         '''
-        pass
+        if not node_pos in self:
+            raise NotFoundNodePositionError(node_pos)
+        return self[node_pos].insert_word(word_pos, word)
 
 if __name__ == '__main__':
     tree = Tree()
