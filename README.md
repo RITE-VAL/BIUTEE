@@ -72,10 +72,15 @@ operation.pyの実体．
 
 依存木の実装
 
-  import trees.pasparser  ## 要config.ini
-  
-  chapas_parser = pasparser.PASParser()
-  tree = pasparser.chapas("花子は太郎にプレゼントをあげた").rstrip()  # -> Tree Object
+    import trees.pasparser  ## 要config.ini
+    
+    chapas_parser = pasparser.PASParser()
+    tree = pasparser.chapas("花子は太郎にプレゼントをあげた").rstrip()  # -> Tree Object
 
-現状Tree構造ではなくListで木を実装している
+Tree は
+    { 1: Node(), 2: Node(), .... }
+という構造体で，Nodeは親`dependent`と子`children`を知ってます．
+`self.root_pos`でルートの位置も取得できます．`self[self.root_pos]`から辿っていけば木として探索可能です．
+
+
 
