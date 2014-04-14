@@ -67,12 +67,12 @@ class Tree(dict):
             position = self.last_position + 1
         self[position] = newnode
         newnode.position = position
-        if newnode.dependent == -1:
+        if newnode.parent == -1:
             self.set_root(position)
         else:
-            if not newnode.dependent in self:
-                raise NotFoundNodePositionError(newnode.dependent)
-            self[newnode.dependent].add_child(position)
+            if not newnode.parent in self:
+                raise NotFoundNodePositionError(newnode.parent)
+            self[newnode.parent].add_child(position)
         self.last_position = max(self.last_position, position)
 
     def delete_node(self, node_pos):
@@ -85,7 +85,7 @@ class Tree(dict):
             raise NotFoundNodePositionError(node_pos)
         node = self[node_pos]
         del self[node_pos]
-        self[node.dependent].remove_child(node_pos)
+        self[node.parent].remove_child(node_pos)
 
     def move_subtree(self, node_pos, after_parent_pos):
         '''
@@ -97,8 +97,8 @@ class Tree(dict):
             raise NotFoundNodePositionError(node_pos)
         if not after_parent_pos in self:
             raise NotFoundNodePositionError(after_parent_pos)
-        self[self[node_pos].dependent].remove_child(node_pos)
-        self[node_pos].depenent = after_parent_pos
+        self[self[node_pos].parent].remove_child(node_pos)
+        self[node_pos].parent = after_parent_pos
         self[after_parent_pos].add_child(node_pos)
 
     def change_relation(self, node_pos, relation):
@@ -108,7 +108,7 @@ class Tree(dict):
         '''
         if not node_pos in self:
             raise NotFoundNodePositionError(node_pos)
-        parent = self[node_pos].depenent
+        parent = self[node_pos].parent
         if node_pos in self[parent].rel:
             raise NotFoundRelationError(node_pos, parent, relation)
         self[parent].rel[node_pos] = relation

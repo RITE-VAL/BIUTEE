@@ -19,20 +19,20 @@ class Node(object):
         self.rel = {}
         self.position = None
         if len(args) == 0:
-            self.dependent = None
+            self.parent = None
             self.subject = None
             self.funcword = None
         elif len(args) == 1:
-            self.dependent = args[0]
+            self.parent = args[0]
             self.subject = None
             self.funcword = None
         elif len(args) == 2:
-            self.dependent = args[0]
+            self.parent = args[0]
             self.words = args[1]
             self.subject = None
             self.funcword = None
         else:
-            self.dependent = args[0]
+            self.parent = args[0]
             self.subject = args[1]
             self.funcword = args[2]
 
