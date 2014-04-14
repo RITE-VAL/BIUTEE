@@ -63,6 +63,12 @@ class TestTree(unittest.TestCase):
     def test_add_to_tree(self):
         pass
 
+    def test_search_word(self):
+        self.assertEqual(self.c1[0].search_word(u"花子"), 0)
+        self.assertEqual(self.c1[0].search_word(u"太郎"), 1)
+        self.assertEqual(self.c1[0].search_word(u"プレゼント"), 2)
+        self.assertEqual(self.c1[0].search_word(u"あげ"), 3)
+        self.assertEqual(self.c1[0].search_word(u"ねこ"), None)
 
 if __name__ == '__main__':
     unittest.main()

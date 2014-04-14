@@ -48,6 +48,16 @@ class Tree(dict):
             return self[position]
         raise NotFoundNodePositionError(position)
 
+    def search_word(self, word):
+        '''
+        tree中のNodeの中からwordが含まれるNodeのpositionを返します
+        なければNoneを返します
+        '''
+        for node_pos, node in self.items():
+            if node.get_subject().string == word:
+                return node_pos
+        return None
+
     def insert_node(self, newnode, position=None):
         '''
         newnode : 新しく挿入したいノード
@@ -103,15 +113,15 @@ class Tree(dict):
             raise NotFoundRelationError(node_pos, parent, relation)
         self[parent].rel[node_pos] = relation
 
-    def flip_part_of_speech(self, node_pos, after_pos):
+    def flip_part_of_speech(self, node_position, after_POS):
         '''
-        ノードnode_pos中のWordの品詞をafter_posに変えます
+        ノードnode_position中のWordの品詞を品詞after_POSに変えます
         変える単語は主辞(位置はsubject)の品詞です
         '''
-        if not node_pos in self:
-            raise NotFoundNodePositionError(node_pos)
-        subject_pos = self[node_pos].subject
-        self[node_pos][subject_pos].pos = after_pos
+        if not node_position in self:
+            raise NotFoundNodePositionError(node_position)
+        subject_pos = self[node_position].subject
+        self[node_position][subject_pos].pos = after_POS
 
     def cut_multiword(self, node_pos, removed_word_pos):
         '''
