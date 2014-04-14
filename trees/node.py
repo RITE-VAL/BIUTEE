@@ -70,6 +70,9 @@ class Node(object):
     def get_surface(self):
         return u"".join([w.get_string() for w in self])
 
+    def get_subject(self):
+        return self.words[self.subject]
+
 
 class Word(object):
 
