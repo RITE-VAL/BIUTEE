@@ -15,19 +15,19 @@ class TestNode(unittest.TestCase):
 
     def test_node1(self):
         n = node.Node(2, 0, 1)
-        self.assertEqual(n.dependent, 2)
+        self.assertEqual(n.parent, 2)
         self.assertEqual(n.subject, 0)
         self.assertEqual(n.funcword, 1)
 
     def test_node2(self):
         n = node.Node(2, 0, 0)
-        self.assertEqual(n.dependent, 2)
+        self.assertEqual(n.parent, 2)
         self.assertEqual(n.subject, 0)
         self.assertEqual(n.funcword, 0)
 
     def test_node3(self):
         n = node.Node()
-        self.assertEqual(n.dependent, None)
+        self.assertEqual(n.parent, None)
         self.assertEqual(n.subject, None)
         self.assertEqual(n.funcword, None)
 
@@ -45,7 +45,7 @@ class TestWord(unittest.TestCase):
 
     def test_word1(self):
         i = pasparser.parse_cabocha_node(
-            u"果物\t名詞,一般,*,*,*,*,果物,クダモノ,クダモノ\tO"
+            "果物\t名詞,一般,*,*,*,*,果物,クダモノ,クダモノ\tO"
         )
         n = node.Word(i)
         self.assertEqual(n.ne, None)
@@ -56,8 +56,8 @@ class TestWord(unittest.TestCase):
 
     def test_word2(self):
         i = pasparser.parse_cabocha_node(
-            (u'行っ\t動詞,自立,*,*,五段・カ行促音便,'
-             u'連用タ接続,行く,イッ,イッ\tO\ttype="pred" ga="1" ni="2"')
+            ('行っ\t動詞,自立,*,*,五段・カ行促音便,'
+             '連用タ接続,行く,イッ,イッ\tO\ttype="pred" ga="1" ni="2"')
         )
         n = node.Word(i)
         self.assertEqual(n.ne, None)
@@ -69,7 +69,7 @@ class TestWord(unittest.TestCase):
     def test_node3(self):
         n = node.Word(
             pasparser.parse_cabocha_node(
-                u'花子\t名詞,固有名詞,人名,名,*,*,花子,ハナコ,ハナコ\tB-PERSON\tID="1"'
+                '花子\t名詞,固有名詞,人名,名,*,*,花子,ハナコ,ハナコ\tB-PERSON\tID="1"'
             )
         )
         self.assertEqual(n.ne, u"B-PERSON")
