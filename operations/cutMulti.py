@@ -6,8 +6,17 @@ from operation import *
 class CutMulti(Operation):
 
     @classmethod
-    def getValue(cls, t, h, args=None):
-        return -1
+    def getValue(cls, t, h, w, b, args=None):
+        return -1 * w[cls]
+
+    @classmethod
+    def getKBest(cks, t, h, args, w, b, k):
+        valueList = []
+        for index in args["selfNodeIndex"]:
+            arg["selfNodeIndex"] =  index
+            valueList.append([self.getValue(t, h, w, b, arg), arg])
+        valueList = sorted(ValueList, reverse=True)[:k-1]
+        return valueList
 
     @classmethod
     def transFormTree(cls, h, args=None):

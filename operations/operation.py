@@ -7,12 +7,16 @@ class Operation:
 
     @classmethod
     @abstractmethod
-    def getValue(cls, t, h, args=None):return
+    def getValue(cls, t, h, w, b, arg=None):return
 
     @classmethod
     @abstractmethod
-    def transFormTree(cls, h, args=None):pass
+    def getKBest(cls, t, h, args, w, b, k):return
 
     @classmethod
     @abstractmethod
-    def transFormT_H(cls, t_h, args=None):pass
+    def transFormTree(cls, h, arg=None):pass
+
+    @classmethod
+    @abstractmethod
+    def transFormT_H(cls, t_h, arg=None):pass
