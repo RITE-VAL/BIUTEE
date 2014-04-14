@@ -3,7 +3,7 @@
 
 from operation import *
 
-class FlipPos(Operation):
+class MoveSubTree(Operation):
 
     @classmethod
     def getValue(cls, t, h, args=None):

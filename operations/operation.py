@@ -11,8 +11,8 @@ class Operation:
 
     @classmethod
     @abstractmethod
-    def translateTree(cls, h, args=None):pass
+    def transFormTree(cls, h, args=None):pass
 
     @classmethod
     @abstractmethod
-    def translateT_H(cls, t_h, args=None):pass
+    def transFormT_H(cls, t_h, args=None):pass

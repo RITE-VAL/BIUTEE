@@ -3,7 +3,7 @@
 
 from operation import *
 
-class FlipPos(Operation):
+class InsertWord(Operation):
 
     @classmethod
     def getValue(cls, t, h, args=None):
@@ -11,8 +11,9 @@ class FlipPos(Operation):
 
     @classmethod
     def transFormTree(cls, h, args=None):
-        h[0].flip_part_of_speech()
-    
+        h[o]
+
     @classmethod
     def transFormT_H(cls, t_h, args=None):
-        t_h.hs.append( [t_h.hs[len(t_h.hs) - 1][0].flip_part_of_speech(),] )
+        t_h.hs.appens( [t_h.hs[len(t_h.hs) -1][0], ] )
+

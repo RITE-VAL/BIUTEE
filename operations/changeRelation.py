@@ -3,7 +3,7 @@
 
 from operation import *
 
-class FlipPos(Operation):
+class ChangeRelation(Operation):
 
     @classmethod
     def getValue(cls, t, h, args=None):
