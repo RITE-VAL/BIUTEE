@@ -61,6 +61,7 @@ def parse_cabocha_node(line):
     tmp = data[1].split(',')
     inf['pos'] = tmp[0]
     inf['subpos'] = tmp[1]
+    inf['origin'] = tmp[6]
     if data[2] == u'O':
         inf['ne'] = None
     else:

@@ -81,17 +81,19 @@ class Word(object):
         Word()
            空のWord
         Word(dict word_info)
-           word_info は keyにstring, ne, pos, subpos, pas を持っている
+           word_info は keyにstring, pos, subpos, origin, ne, pas を持っている
            string(必須): 文字列の表層
            pos         : 品詞，例えばCabocha Formatの1つ目の項目(e.g. 名詞，動詞)
            subpos      : サブの品詞 例えばCabocha Formatの2つ目の項目(e.g. サ変接続，自立)
+           origin      : 原型(あげた -> あげる)
            ne          : 固有名詞
            pas         : 述語項構造解析の結果 (e.g. ga="1" ni="2")
         '''
         self.string = None
-        self.ne = None
         self.pos = None
         self.subpos = None
+        self.origin = None
+        self.ne = None
         self.pas = None
         if len(args) > 0:
             word_info = args[0]
@@ -100,6 +102,8 @@ class Word(object):
                 self.pos = word_info['pos']
             if 'subpos' in word_info:
                 self.subpos = word_info['subpos']
+            if 'origin' in word_info:
+                self.origin = word_info['origin']
             if 'ne' in word_info:
                 self.ne = word_info['ne']
             if 'pas' in word_info:
