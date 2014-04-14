@@ -25,56 +25,49 @@ class T_H:
         self.proof
         return [0, len(self.hs[0])]
     
-    def search(self, w, b, k):
+    def search(self, w, b, k, h=None):
         text = self.t # treeのリスト(リスト要素それぞれが1文を表している)
-        hypothes = copy.copy(self.hs[0]) # treeのリスト(リスト要素それぞれが1文を表している)(参照でなくコピーを操作して，サーチする)
+        hypo = []
+        if h == None:
+            for i in range(x):
+                h = copy.copy(self.hs[0]) # treeのリスト(リスト要素それぞれが1文を表している)(参照でなくコピーを操作して，サーチする)
+                hypo.append(h)
+        else:
+            for i in range(x):
+                tmp_h = copy.copy(h)
+                hypo.append(tmp_h)
+
         operationList = [FlipPos, ]
-        argsDic = {} # operationごとにargsの設計は違うのでうまいことやってください
-
-        # args elements
-        parentNodeIndex = []
-        selfNodeIndex = []
-        depLabel = []
-        insertedWord = []
-
-        argsDic[FlipPos] = [parentNodeIndex,
-                            selfNodeIndex,
-                            depLabel,
-                            insertedWord]
 
         for o in operationList:
-            if o in insertingAction:
-                args = argsDic[o][:2]
-                args.append(argsDic[o][3])
-            elif o in changeRelation:
-                args = argsDic[o][1]
-                args.append(argsDic[o][2])
-            elif o in moveSubtree:
-                args = argsDic[o][:2]
-            elif o in multiWord:
-                args = argsDic[o][1]
+            args = set_args(o)
+            # kBest is [[value, ope, arg],[]]
+            # tempKBestList is [[value, arg],[]]
+            # return of getKBest is k best of the operation
+            tempKBestList = o.getKBest(text, hypothesis, args, w, b, k)
+            for b in tmpKBestList:
+                if b[0] > kBest[3][0]:
+                    b.insert(1,o)
+                    kBest.append(b)
+                    kBest.sort(key=lambda x: x[0], reverse=True)
+
+        # transform a tree
+        for i, k in enumerate(kBest):
+            o.transformTree(hypo[i], k[2])
+
+            if text == hypo[i]:
+                self.proof.append()
+                self.__feature = self.__getFeature()
             else:
-                args = argsDic[o]
+                search(w, b, k, hypo[i])
 
-            # kList is [[value, ope, args, text, hypo],[]]
-            # return of getValue is k best of the operation
-            kList.append(o.getValue(text, hypothesis, args))
 
-        # kBest is [[value, ope, args, text, hypo],[]]
-        for o in kList:
-            # cand is [value, ope, args, text, hypo]
-            # return of search2 is k best of o
-            cand = search2(o)
-            if len(kBest) == 4:
-                # compare values
-                if cand[0] > kBest[3][0]:
-                    kBest[3] = cand
-            else:
-                kBest.append()
-            kBest.sorted(key=lambda x: x[0], reverse=True)
-
-        self.proof.append(kBest)
-        self.__feature = self.__getFeature()
+    def set_args(self, o):
+        parentNodeIndex = extractParentNodeIndex()
+        selfNodeIndex = extractSelfNodeIndex()
+        depLabel = extractInsertedWord()
+        insertedWord =extractInsertedWord()
+        return [parentNodeIndex, selfNodeIndex, depLabel, insertedWord]
 
     def translate(self):
         if len(self.proof) == 0:
