@@ -30,26 +30,50 @@ class T_H:
         hypothes = copy.copy(self.hs[0]) # treeのリスト(リスト要素それぞれが1文を表している)(参照でなくコピーを操作して，サーチする)
         operationList = [FlipPos, ]
         argsDic = {} # operationごとにargsの設計は違うのでうまいことやってください
-        wordList = ["word", "word2"]
-        fposDic = {}
-        fposDic["insertPos"] = 1
-        fposDic["inserWord"] = wordList[0]
-        argsDic[FlipPos] = [fposDic]
+
+        # args elements
+        parentNodeIndex = []
+        selfNodeIndex = []
+        depLabel = []
+        insertedWord = []
+
+        argsDic[FlipPos] = [parentNodeIndex,
+                            selfNodeIndex,
+                            depLabel,
+                            insertedWord]
+
         for o in operationList:
-            args = argsDic[o]
-            value = o.getValue(text, hypothes, args)
-            
-            # argsをいい感じに変形させていって全部試す(forなりなんなり使ってください)
-            if "insertNum" in args:
-                args["insertNum"] = wordList[1]
-            if "insertNum" in args:
-                args["insertPos"] += 1
-            value = FlipPos.getValue(text, hypothes, args)
-            o.translateTree(hypothes, args) # 変形させてまた次の操作を探す
-        
-        self.proof.append([FlipPos, args])
-        
-        
+            if o in insertingAction:
+                args = argsDic[o][:2]
+                args.append(argsDic[o][3])
+            elif o in changeRelation:
+                args = argsDic[o][1]
+                args.append(argsDic[o][2])
+            elif o in moveSubtree:
+                args = argsDic[o][:2]
+            elif o in multiWord:
+                args = argsDic[o][1]
+            else:
+                args = argsDic[o]
+
+            # kList is [[value, ope, args, text, hypo],[]]
+            # return of getValue is k best of the operation
+            kList.append(o.getValue(text, hypothesis, args))
+
+        # kBest is [[value, ope, args, text, hypo],[]]
+        for o in kList:
+            # cand is [value, ope, args, text, hypo]
+            # return of search2 is k best of o
+            cand = search2(o)
+            if len(kBest) == 4:
+                # compare values
+                if cand[0] > kBest[3][0]:
+                    kBest[3] = cand
+            else:
+                kBest.append()
+            kBest.sorted(key=lambda x: x[0], reverse=True)
+
+        self.proof.append(kBest)
         self.__feature = self.__getFeature()
 
     def translate(self):
