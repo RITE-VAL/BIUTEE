@@ -39,6 +39,7 @@ class T_H:
 
         operationList = [FlipPos, ]
 
+        kBest = []
         for o in operationList:
             args = set_args(o)
             # kBest is [[value, ope, arg],[]]
@@ -62,12 +63,26 @@ class T_H:
                 search(w, b, k, hypo[i])
 
 
-    def set_args(self, o):
-        parentNodeIndex = extractParentNodeIndex()
-        selfNodeIndex = extractSelfNodeIndex()
-        depLabel = extractInsertedWord()
-        insertedWord =extractInsertedWord()
-        return [parentNodeIndex, selfNodeIndex, depLabel, insertedWord]
+    def set_args(self, o, hypo, text):
+        argsDic = {}
+        pList, sDic = self.extractElementOfArgs(hypo)
+        vocabDic = extractVDic()
+        argsDic["parentNodeIndexList"] = pList
+        argsDic["selfNodeIndexDic"] = sDic
+        argsDic["vocabDic"] = vDic
+        return argsDic
+
+    def extractElementOfArgs(self, hypo):
+        pList = []
+        sDic = {}
+        # k is the parent, v is the object Node()
+        for k, v in hypo.items():
+            pList.append(v.parent)
+            sDic.update(v.rel)
+        return pList, sDic
+
+    def extractVDic():
+        pass
 
     def translate(self):
         if len(self.proof) == 0:
