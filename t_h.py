@@ -25,32 +25,64 @@ class T_H:
         self.proof
         return [0, len(self.hs[0])]
     
-    def search(self, w, b, k):
+    def search(self, w, b, k, h=None):
         text = self.t # treeのリスト(リスト要素それぞれが1文を表している)
-        hypothes = copy.copy(self.hs[0]) # treeのリスト(リスト要素それぞれが1文を表している)(参照でなくコピーを操作して，サーチする)
+        hypo = []
+        if h == None:
+            for i in range(x):
+                h = copy.copy(self.hs[0]) # treeのリスト(リスト要素それぞれが1文を表している)(参照でなくコピーを操作して，サーチする)
+                hypo.append(h)
+        else:
+            for i in range(x):
+                tmp_h = copy.copy(h)
+                hypo.append(tmp_h)
+
         operationList = [FlipPos, ]
-        argsDic = {} # operationごとにargsの設計は違うのでうまいことやってください
-        wordList = ["word", "word2"]
-        fposDic = {}
-        fposDic["insertPos"] = 1
-        fposDic["inserWord"] = wordList[0]
-        argsDic[FlipPos] = [fposDic]
+
+        kBest = []
         for o in operationList:
-            args = argsDic[o]
-            value = o.getValue(text, hypothes, args)
-            
-            # argsをいい感じに変形させていって全部試す(forなりなんなり使ってください)
-            if "insertNum" in args:
-                args["insertNum"] = wordList[1]
-            if "insertNum" in args:
-                args["insertPos"] += 1
-            value = FlipPos.getValue(text, hypothes, args)
-            o.translateTree(hypothes, args) # 変形させてまた次の操作を探す
-        
-        self.proof.append([FlipPos, args])
-        
-        
-        self.__feature = self.__getFeature()
+            args = set_args(o)
+            # kBest is [[value, ope, arg],[]]
+            # tempKBestList is [[value, arg],[]]
+            # return of getKBest is k best of the operation
+            tempKBestList = o.getKBest(text, hypothesis, args, w, b, k)
+            for b in tmpKBestList:
+                if b[0] > kBest[3][0]:
+                    b.insert(1,o)
+                    kBest.append(b)
+                    kBest.sort(key=lambda x: x[0], reverse=True)
+
+        # transform a tree
+        for i, k in enumerate(kBest):
+            o.transformTree(hypo[i], k[2])
+
+            if text == hypo[i]:
+                self.proof.append()
+                self.__feature = self.__getFeature()
+            else:
+                search(w, b, k, hypo[i])
+
+
+    def set_args(self, o, hypo, text):
+        argsDic = {}
+        pList, sDic = self.extractElementOfArgs(hypo)
+        vocabDic = extractVDic()
+        argsDic["parentNodeIndexList"] = pList
+        argsDic["selfNodeIndexDic"] = sDic
+        argsDic["vocabDic"] = vDic
+        return argsDic
+
+    def extractElementOfArgs(self, hypo):
+        pList = []
+        sDic = {}
+        # k is the parent, v is the object Node()
+        for k, v in hypo.items():
+            pList.append(v.parent)
+            sDic.update(v.rel)
+        return pList, sDic
+
+    def extractVDic():
+        pass
 
     def translate(self):
         if len(self.proof) == 0:
