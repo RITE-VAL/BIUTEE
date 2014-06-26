@@ -96,7 +96,8 @@ class PASParser(object):
     def parse(self, sentences):
         # 解析結果をTreeのリストとして返す
         trees = []
-        sentences = self.parser(sentences).split('EOS')[:-1]
+        text = ""
+        sentences = text.split('EOS')[:-1]
         for sentence in sentences:
             tr = tree.Tree()
             for chunk in reversed(list(chunker(sentence.split('\n')))):

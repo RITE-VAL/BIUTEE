@@ -60,12 +60,13 @@ class Tree(dict):
 
     def insert_node(self, newnode, position=None):
         '''
-        newnode : 新しく挿入したいノード
+        newnode : 新しく挿入したいノード(Node) or 見出し(str)
         position : newnodeの親ノードのposition(int)
         '''
         if isinstance(newnode, str):
             pos = max(self.keys()) + 1
-            Node()
+            nd = node.Node()
+            nd.position = pos
         if position is None:
             position = self.last_position + 1
         self[position] = newnode
