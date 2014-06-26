@@ -7,9 +7,9 @@ class Node(object):
         '''
         Node()
           空のNode
-        Node(int dependent)
+        Node(int parent)
           depenent のみ
-        Node(int dependent, list words)
+        Node(int parent, list words)
           dependent と Word のリスト
         Node(int dependent, int subject, int fucword)
           dependent, subject, funcword

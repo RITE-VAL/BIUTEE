@@ -60,9 +60,13 @@ class Tree(dict):
 
     def insert_node(self, newnode, position=None):
         '''
-        newnode : 新しく挿入したいノード
+        newnode : 新しく挿入したいノード(Node) or 見出し(str)
         position : newnodeの親ノードのposition(int)
         '''
+        if isinstance(newnode, str):
+            pos = max(self.keys()) + 1
+            nd = node.Node()
+            nd.position = pos
         if position is None:
             position = self.last_position + 1
         self[position] = newnode
@@ -86,6 +90,8 @@ class Tree(dict):
         node = self[node_pos]
         del self[node_pos]
         self[node.parent].remove_child(node_pos)
+        for child in node.child:
+            del self[child]
 
     def move_subtree(self, node_pos, after_parent_pos):
         '''
@@ -146,6 +152,17 @@ class Tree(dict):
         if not node_pos in self:
             raise NotFoundNodePositionError(node_pos)
         return self[node_pos].insert_word(word_pos, word)
+
+    def reach_node(self, start, end=-1):
+        nowpos = start
+        while nowpos != end:
+            yield nowpos
+            nowpos = nowpos.parent
+
+    def get_path_length(self, pos1, pos2):
+        path_for_pos1 = reach_node(pos1)
+        path_for_pos2 = reach_node(pos2)
+
 
 if __name__ == '__main__':
     tree = Tree()
