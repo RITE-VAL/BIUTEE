@@ -18,3 +18,8 @@ expand_knp.shのサブのスクリプト．KNPのフォーマットから元の�
 でKNPフォーマットから元の生文に復元する
 
 
+## make_feature_file.py
+
+未完成
+
+
