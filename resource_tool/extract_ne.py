@@ -7,19 +7,23 @@ def extract_ne(args):
     for data in datas:
         lines = data.split('\n')
         nes = []
-        tmp_ne, tmp_type = u"", u""
-        header = ""
+        tmp_ne, tmp_type, tmp_pos = u"", u"", 0
+        header, word_pos, words = "", -1, []
         for info in lines:
             if info == u"":
                 continue
             if info.startswith("EOS"):
                 if tmp_ne != u"":
-                    nes.append((tmp_ne, tmp_type))
-                text = " ".join([u"{}:{}".format(ne, t) for ne, t in nes])
-                text = header + u"\t" + text
+                    nes.append((tmp_ne, tmp_type, tmp_pos, word_pos))
+                text = " ".join([
+                    u"{}:{}:{}:{}".format(ne, t, p1, p2)
+                    for ne, t, p1, p2 in nes
+                ])
+                text = header + u"\t" + text + u"\t" + u" ".join(words)
                 f.write(text.encode("UTF-8"))
                 f.write("\n")
                 nes = []
+                words = []
             elif info.startswith("#"):
                 header = u"\t".join([pp.split(u':')[1]
                                      for pp in info.split(' ')[1:]])
@@ -27,16 +31,19 @@ def extract_ne(args):
                 continue
             else:
                 dd = info.split("\t")
+                words.append(dd[0])
+                word_pos += 1
                 if dd[2] == u"O" and tmp_ne != u"":
-                    nes.append((tmp_ne, tmp_type))
+                    nes.append((tmp_ne, tmp_type, tmp_pos, word_pos))
                     tmp_ne = u""
                 elif dd[2] == u"O":
                     continue
                 elif dd[2].startswith(u"B-"):
                     if tmp_ne != u"":
-                        nes.append((tmp_ne, tmp_type))
+                        nes.append((tmp_ne, tmp_type, tmp_pos, word_pos))
                     tmp_ne = dd[0]
                     tmp_type = dd[2][2:]
+                    tmp_pos = word_pos
                 else:
                     tmp_ne += dd[0]
     f.close()
