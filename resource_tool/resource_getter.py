@@ -25,8 +25,8 @@ how to use:
 class ZundaGetter(object):
 
     def __init__(self):
-        self.path = '/home/mai-om/local/bin/zunda'
-        self.knp = '/home/mai-om/local/bin/knp'
+        self.path = '/home/mai-om/local/bin/zunda -i 4'
+        self.knp = '/home/mai-om/local/bin/knp -tab -case -anaphora'
         self.juman = '/home/mai-om/local/bin/juman'
 
     def _detail_parse(self, items):
@@ -45,16 +45,18 @@ class ZundaGetter(object):
         return {int(r[0][6:]): self._detail_parse(r) for r in rr}
 
     def _getResult(self, text):
-        cmd1 = Popen(shlex.split(self.juman), stdin=PIPE,
+        cmd3 = Popen(shlex.split('echo "{}"'.format(text)), stdin=PIPE,
                      stdout=PIPE, stderr=PIPE)
-        cmd1.stdout.close()
+        cmd1 = Popen(shlex.split(self.juman), stdin=cmd3.stdout,
+                     stdout=PIPE, stderr=PIPE)
         cmd2 = Popen(shlex.split(self.knp), stdin=cmd1.stdout,
                      stdout=PIPE, stderr=PIPE)
-        cmd2.stdout.close()
         cmd = Popen(shlex.split(self.path), stdin=cmd2.stdout,
                     stdout=PIPE, stderr=PIPE)
-        cmd.stdin.write(text)
-        return cmd.communicate()[0].rstrip()
+        cmd1.stdout.close()
+        cmd2.stdout.close()
+        cmd3.stdout.close()
+        return cmd.communicate(input=text)[0].rstrip()
 
     def get(self, text):
         if isinstance(text, unicode):

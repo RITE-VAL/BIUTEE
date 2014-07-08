@@ -9,6 +9,7 @@ sys.path.append(
     "/home/mai-om/local/dist/normalizeNumexp/swig/normalizeNumexp/"
 )
 from normalize_numexp import NormalizeNumexp, StringVector
+from convert_knp import convert_knp
 
 
 def chunk_pred(x):
@@ -189,6 +190,124 @@ def mix_zunda():
         sys.stdout.flush()
 
 
+def add_zunded(zunda_text):
+    dd = zunda_text.split("\n")
+    zunda = [z.split("\t") for z in dd if z.startswith("#EVENT")]
+    zunda_tmp = {z[0]: "\t".join(z[1:]) for z in zunda}
+    zunda = {int(z[1]): z[0] for z in zunda}
+    knp = dd[len(zunda):]
+    word_count, knp_tmp = 0, []
+    for knp_line in knp:
+        knp_line = knp_line.rstrip("\n")
+        if not (knp_line.startswith("* ") or
+                knp_line.startswith("+ ") or knp_line.startswith("# ")):
+            if word_count in zunda:
+                knp_line = knp_line + "\t" + zunda[word_count]
+            word_count += 1
+        knp_tmp.append(knp_line)
+    return "\n".join(knp_tmp), zunda_tmp
+
+
+def add_nn(knp, nn):
+    knp = knp.split("\n")
+    start, end, c_count = 0, 0, 0
+    pos_dict = {}
+    for knp_line in knp:
+        knp_line = knp_line.rstrip("\n")
+        if not (knp_line.startswith("* ") or
+                knp_line.startswith("+ ") or knp_line.startswith("# ")):
+            w = knp_line.split(" ")[0]
+            end += len(w)
+        elif knp_line.startswith("* "):
+            for p, n in enumerate(nn):
+                if start <= n["start"] and n["end"] <= end:
+                    pos_dict[c_count - 1] = p
+            start = end
+            c_count += 1
+    for p, n in enumerate(nn):
+        if start <= n["start"] and n["end"] <= end:
+            pos_dict[c_count - 1] = p
+    c_count, knp_tmp = 0, []
+    for knp_line in knp:
+        if knp_line.startswith("* "):
+            if c_count in pos_dict:
+                knp_line = knp_line + "\t" + str(pos_dict[c_count])
+            c_count += 1
+        knp_tmp.append(knp_line)
+    return "\n".join(knp_tmp)
+
+
+def add_nn_pos_to_knp():
+    for filename in glob.iglob('[FS]V/my/*.xml.zunda_knp_1.json'):
+        print "{} start..".format(filename)
+        sys.stdout.flush()
+        data = json.load(open(filename, "r"))
+        nn_data = json.load(
+            open(filename.replace("zunda_knp_1", "raw.nn"), "r"))
+        dumped_json = data.copy()
+        for t_id, t in product(data, ["t1", "t2"]):
+            if t not in data[t_id]:
+                continue
+            k = add_nn(dumped_json[t_id][t]["knp"], nn_data[t_id][t]["nn"])
+            dumped_json[t_id][t]["knp"] = k
+            dumped_json[t_id][t]["nn"] = nn_data[t_id][t]["nn"]
+            print "{}:{} done.".format(t_id, t)
+            sys.stdout.flush()
+        ss = json.dumps(dumped_json, indent=4, sort_keys=True,
+                        ensure_ascii=False)
+        with open(filename.replace(".zunda_knp_1", ".zunda_knp_2"), "w") as w:
+            w.write(ss.encode("utf-8"))
+        print "{} end..".format(filename)
+        sys.stdout.flush()
+
+
+def add_zunda_pos_to_knp():
+    for filename in glob.iglob('[FS]V/my/*.xml.zunda_knp.json'):
+        print "{} start..".format(filename)
+        sys.stdout.flush()
+        data = json.load(open(filename, "r"))
+        dumped_json = data.copy()
+        for t_id, t in product(data, ["t1", "t2"]):
+            if t not in data[t_id]:
+                continue
+            k, z = add_zunded(dumped_json[t_id][t]["zunda"])
+            dumped_json[t_id][t]["knp"] = k
+            dumped_json[t_id][t]["zunda"] = z
+            print "{}:{} done.".format(t_id, t)
+            sys.stdout.flush()
+        ss = json.dumps(dumped_json, indent=4, sort_keys=True,
+                        ensure_ascii=False)
+        with open(filename.replace(".zunda_knp", ".zunda_knp_1"), "w") as w:
+            w.write(ss.encode("utf-8"))
+        print "{} end..".format(filename)
+        sys.stdout.flush()
+
+
+def make_zunda_knp():
+    for filename in glob.iglob('SV/my/*.xml.raw.json'):
+        print "{} start..".format(filename)
+        sys.stdout.flush()
+        data = json.load(open(filename, "r"))
+        dumped_json = data.copy()
+        for t_id, t in product(data, ["t1", "t2"]):
+            if t not in data[t_id]:
+                continue
+            text = data[t_id][t]
+            dumped_json[t_id][t] = {}
+            dumped_json[t_id][t]["raw_text"] = text
+            dumped_json[t_id][t]["zunda"] = get_zunda(
+                text.replace(u" ", u"　")
+            ).decode('utf-8')
+            print "{}:{} done.".format(t_id, t)
+            sys.stdout.flush()
+        ss = json.dumps(dumped_json, indent=4, sort_keys=True,
+                        ensure_ascii=False)
+        with open(filename.replace(".raw", ".zunda_knp"), "w") as w:
+            w.write(ss.encode("utf-8"))
+        print "{} end..".format(filename)
+        sys.stdout.flush()
+
+
 def mix_nn():
     for filename in glob.iglob('[FS]V/my/*.xml.raw.json'):
         print "{} start..".format(filename)
@@ -201,12 +320,16 @@ def mix_nn():
             if t_id not in dumped_json:
                 dumped_json[t_id] = {}
             dumped_json[t_id][t] = {}
-            dumped_json[t_id][t]["nn"] = [parse_nn(d) for d in get_nn(data[t_id][t])]
+            dumped_json[t_id][t]["nn"] = [
+                parse_nn(d) for d in get_nn(data[t_id][t])
+            ]
             print dumped_json[t_id][t]["nn"]
             dumped_json[t_id][t]["raw_text"] = data[t_id][t]
             print "{}:{} done.".format(t_id, t)
             sys.stdout.flush()
-        ss = json.dumps(dumped_json, indent=4, sort_keys=True, ensure_ascii=False)
+        ss = json.dumps(
+            dumped_json, indent=4, sort_keys=True, ensure_ascii=False
+        )
         with open(filename.replace(".raw", ".raw.nn"), "w") as w:
             w.write(ss.encode("utf-8"))
         print "{} end..".format(filename)
@@ -282,37 +405,6 @@ def convert_ne():
                   sort_keys=True, indent=4, ensure_ascii=False)
 
 
-def convert_knp():
-    for filename in glob.iglob('[FS]V/my/*.xml.knp'):
-        jfilename = filename + ".json"
-        dumped_dict = {}
-        with open(filename, 'r') as r:
-            data = r.read().replace("EOS\n% ID:", "EOS\n\n% ID:")
-        data = data.split('\n\n')
-        for d in data:
-            d_dic = {}
-            dd = d.split("\n")
-            dic = analyze_header(dd[0])
-            data_id, ans = dic['ID'], dic['ans']
-            cate = dic.get('c', None)
-            ts = "\n".join(dd[1:]).replace("EOS\n%", "EOS\n\n%").split("\n\n")
-            d_dic['t2'] = {}
-            if len(ts) == 2:
-                d_dic['t1'] = {}
-            for t in ts:
-                tt = t.split("\n")
-                d_dic[tt[0].split(" ")[1]]['data'] = "\n".join(tt[1:])
-            dumped_dict[data_id] = {}
-            dumped_dict[data_id]['ans'] = ans
-            dumped_dict[data_id]['t2'] = d_dic['t2']
-            if len(ts) == 2:
-                dumped_dict[data_id]['t1'] = d_dic['t1']
-            if cate is not None:
-                dumped_dict['category'] = cate
-        json.dump(dumped_dict, open(jfilename, 'w'),
-                  sort_keys=True, indent=4, ensure_ascii=False)
-
-
 def convert_chapas():
     for filename in glob.iglob('[FS]V/my/*.xml.pas'):
         jfilename = filename + ".json"
@@ -346,5 +438,15 @@ def convert_chapas():
 
 if __name__ == '__main__':
     # 関数適当に置く
-    convert_ne()
-    mix_ne()
+    # convert_knp()
+    for filename in glob.iglob('FV/my/*.xml.simple.json'):
+        data = json.load(open(filename, "r"))
+        for k, v in data.items():
+            if len(v["t2"]["simple"]) == 0:
+                print "{} {} {}".format(filename, k, "t2")
+    for filename in glob.iglob('SV/my/*.xml.simple.json'):
+        data = json.load(open(filename, "r"))
+        for k, v in data.items():
+            for t in ["t1", "t2"]:
+                if len(v[t]["simple"]) == 0:
+                    print "{} {} {}".format(filename, k, t)
