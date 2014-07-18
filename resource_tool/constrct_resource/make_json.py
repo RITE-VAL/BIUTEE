@@ -3,6 +3,7 @@ import glob
 import json
 import sys
 import re
+from get_document import add_zunded
 from itertools import takewhile, dropwhile, product, groupby
 from resource_getter import ZundaGetter
 sys.path.append(
@@ -190,24 +191,6 @@ def mix_zunda():
         sys.stdout.flush()
 
 
-def add_zunded(zunda_text):
-    dd = zunda_text.split("\n")
-    zunda = [z.split("\t") for z in dd if z.startswith("#EVENT")]
-    zunda_tmp = {z[0]: "\t".join(z[1:]) for z in zunda}
-    zunda = {int(z[1]): z[0] for z in zunda}
-    knp = dd[len(zunda):]
-    word_count, knp_tmp = 0, []
-    for knp_line in knp:
-        knp_line = knp_line.rstrip("\n")
-        if not (knp_line.startswith("* ") or
-                knp_line.startswith("+ ") or knp_line.startswith("# ")):
-            if word_count in zunda:
-                knp_line = knp_line + "\t" + zunda[word_count]
-            word_count += 1
-        knp_tmp.append(knp_line)
-    return "\n".join(knp_tmp), zunda_tmp
-
-
 def add_nn(knp, nn):
     knp = knp.split("\n")
     start, end, c_count = 0, 0, 0
@@ -284,7 +267,7 @@ def add_zunda_pos_to_knp():
 
 
 def make_zunda_knp():
-    for filename in glob.iglob('SV/my/*.xml.raw.json'):
+    for filename in glob.iglob('[FS]V/my/*.xml.raw.json'):
         print "{} start..".format(filename)
         sys.stdout.flush()
         data = json.load(open(filename, "r"))
@@ -335,118 +318,20 @@ def mix_nn():
         print "{} end..".format(filename)
         sys.stdout.flush()
 
-
-def convert_raw():
-    for filename in glob.iglob('[FS]V/my/*.xml.raw'):
-        jfilename = filename + ".json"
-        dumped_dict = {}
-        with open(filename, 'r') as r:
-            for line in r:
-                line = line.rstrip("\n").split("\t")
-                if len(line) == 5:
-                    t_id, t1, t2, ans, cate = line
-                    dumped_dict[t_id] = {
-                        "t1": t1, "t2": t2, "ans": ans, "category": cate
-                    }
-                elif len(line) == 4:
-                    t_id, t1, t2, ans = line
-                    dumped_dict[t_id] = {
-                        "t1": t1, "t2": t2, "ans": ans
-                    }
-                else:
-                    t_id, t2, ans = line
-                    dumped_dict[t_id] = {
-                        "t2": t2, "ans": ans
-                    }
-        json.dump(dumped_dict, open(jfilename, 'w'),
-                  sort_keys=True, indent=4, ensure_ascii=False)
-
-
-def convert_ne():
-    for filename in glob.iglob('[FS]V/my/*.xml.ne'):
-        jfilename = filename + ".json"
-        dumped_dict = {}
-        with open(filename, 'r') as r:
-            t1_flag = False
-            for line in r:
-                line = line.rstrip("\n").split("\t")
-                if len(line) == 6:
-                    t_pos, d_pos, c, w_pos = 3, 4, line[2], 5
-                else:
-                    t_pos, d_pos, c, w_pos = 2, 3, None, 4
-                if line[t_pos] == "t2":
-                    if not t1_flag:
-                        dumped_dict[line[0]] = {}
-                        dumped_dict[line[0]]["ans"] = line[1]
-                        if c:
-                            dumped_dict[line[0]]["category"] = line[2]
-                    t1_flag = False
-                    dumped_dict[line[0]]["t2"] = {}
-                    dumped_dict[line[0]]["t2"]["data"] = line[d_pos].split(" ")
-                    if dumped_dict[line[0]]["t2"]["data"][0] == "":
-                        dumped_dict[line[0]]["t2"]["data"] = []
-                    dumped_dict[line[0]]["t2"]["chunks"] = line[w_pos].split(
-                        " "
-                    )
-                else:
-                    dumped_dict[line[0]] = {}
-                    dumped_dict[line[0]]["ans"] = line[1]
-                    if c:
-                        dumped_dict[line[0]]["category"] = line[2]
-                    t1_flag = True
-                    dumped_dict[line[0]]["t1"] = {}
-                    dumped_dict[line[0]]["t1"]["data"] = line[d_pos].split(" ")
-                    if dumped_dict[line[0]]["t1"]["data"][0] == "":
-                        dumped_dict[line[0]]["t1"]["data"] = []
-                    dumped_dict[line[0]]["t1"]["chunks"] = line[w_pos].split(
-                        " "
-                    )
-        json.dump(dumped_dict, open(jfilename, 'w'),
-                  sort_keys=True, indent=4, ensure_ascii=False)
-
-
-def convert_chapas():
-    for filename in glob.iglob('[FS]V/my/*.xml.pas'):
-        jfilename = filename + ".json"
-        dumped_dict = {}
-        with open(filename, 'r') as r:
-            data = r.read()
-        data = data.split('\n\n')[:-1]
-        for d in data:
-            d_dic = {}
-            ts = d.replace("EOS\n#", "EOS\n\n#").split("\n\n")
-            d_dic['t2'], data_id, ans, cate = {}, None, None, None
-            if len(ts) == 2:
-                d_dic['t1'] = {}
-            for t in ts:
-                tt = t.split("\n")
-                dic = analyze_header(tt[0])
-                data_id, ans = dic['id'], dic['label']
-                d_dic[dic['tag']]['text'] = "\n".join(tt[1:])
-                if 'category' in dic:
-                    cate = dic['category']
-            dumped_dict[data_id] = {}
-            dumped_dict[data_id]['ans'] = ans
-            dumped_dict[data_id]['t2'] = d_dic['t2']
-            if len(ts) == 2:
-                dumped_dict[data_id]['t1'] = d_dic['t1']
-            if cate is not None:
-                dumped_dict['category'] = cate
-        json.dump(dumped_dict, open(jfilename, 'w'),
-                  sort_keys=True, indent=4, ensure_ascii=False)
-
-
 if __name__ == '__main__':
     # 関数適当に置く
-    # convert_knp()
-    for filename in glob.iglob('FV/my/*.xml.simple.json'):
-        data = json.load(open(filename, "r"))
-        for k, v in data.items():
-            if len(v["t2"]["simple"]) == 0:
-                print "{} {} {}".format(filename, k, "t2")
-    for filename in glob.iglob('SV/my/*.xml.simple.json'):
-        data = json.load(open(filename, "r"))
-        for k, v in data.items():
-            for t in ["t1", "t2"]:
-                if len(v[t]["simple"]) == 0:
-                    print "{} {} {}".format(filename, k, t)
+    # make_zunda_knp()
+    add_zunda_pos_to_knp()
+    add_nn_pos_to_knp()
+    convert_knp()
+    # for filename in glob.iglob('FV/my/*.xml.simple.json'):
+    #     data = json.load(open(filename, "r"))
+    #     for k, v in data.items():
+    #         if len(v["t2"]["simple"]) == 0:
+    #             print "{} {} {}".format(filename, k, "t2")
+    # for filename in glob.iglob('SV/my/*.xml.simple.json'):
+    #     data = json.load(open(filename, "r"))
+    #     for k, v in data.items():
+    #         for t in ["t1", "t2"]:
+    #             if len(v[t]["simple"]) == 0:
+    #                 print "{} {} {}".format(filename, k, t)

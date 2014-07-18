@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import urllib2
-import solr_wrapper as sw
+import get_document.solr_wrapper as sw
 
 
 def getData(url):

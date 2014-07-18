@@ -1,4 +1,3 @@
-# リソースを作るためのスクリプト
 
 ## expand_knp.sh
 
@@ -16,10 +15,4 @@ expand_knp.shのサブのスクリプト．KNPのフォーマットから元の�
     python expand_knp_file < hoge.txt
 
 でKNPフォーマットから元の生文に復元する
-
-
-## make_feature_file.py
-
-未完成
-
 

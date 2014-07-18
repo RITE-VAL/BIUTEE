@@ -26,7 +26,7 @@ class ZundaGetter(object):
 
     def __init__(self):
         self.path = '/home/mai-om/local/bin/zunda -i 4'
-        self.knp = '/home/mai-om/local/bin/knp -tab -case -anaphora'
+        self.knp = '/home/mai-om/local/bin/knp -tab -case -anaphora -ne'
         self.juman = '/home/mai-om/local/bin/juman'
 
     def _detail_parse(self, items):
@@ -129,12 +129,8 @@ class SynchaGetter(object):
 
 
 if __name__ == '__main__':
-    text = u"太郎が彼に殴られた"
-    syn = ChaPASGetter()
-    print syn.get(text)
     text = u"ペリーは蒸気船を配備した東インド艦隊を引きいて、嘉永6年6月3日（1853年7月8日）浦賀沖に来航し、6月9日（7月14日）に開国を求めるアメリカ大統領国書を提出した後、日本を離れたが、幕府では老中阿部正弘らを中心に、諸大名から庶民まで幅広く意見を求め、嘉永7年（1854年）1月にペリーが再来航し、日米和親条約を締結した。"
     nn = NNGetter()
     print nn.get(text)
     zunda = ZundaGetter()
-    for i in range(10):
-        print zunda.get(text)
+    print zunda.get(text)
