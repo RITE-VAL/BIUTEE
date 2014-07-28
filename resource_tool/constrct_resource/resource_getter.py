@@ -25,7 +25,7 @@ how to use:
 class ZundaGetter(object):
 
     def __init__(self):
-        self.path = '/home/mai-om/local/bin/zunda -i 4'
+        self.path = '/home/mai-om/local/bin/zunda -i 3'
         self.knp = '/home/mai-om/local/bin/knp -tab -case -anaphora -ne'
         self.juman = '/home/mai-om/local/bin/juman'
 
