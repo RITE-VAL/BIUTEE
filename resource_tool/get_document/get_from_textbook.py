@@ -102,13 +102,12 @@ def doc_to_chapas():
 
 def ne_to_chapas():
     done_buf_list = {}
-    for filename in glob.iglob('json/*.xml.doc_text_ne.json'):
+    for filename in glob.iglob('json/*.xml.doc_*_ne.json'):
         data = json.load(open(filename))
         dumped_json = data.copy()
         for t_id in data:
             target_dic = dumped_json[t_id]["t1"]["dic_id"]
             if target_dic in done_buf_list:
-                dumped_json[t_id]["t1"] = {}
                 dumped_json[t_id]["t1"]["doc"] = done_buf_list[target_dic]
             else:
                 done_buf_list[target_dic] = []
@@ -131,7 +130,7 @@ def ne_to_chapas():
             dumped_json, indent=4, sort_keys=True,
             ensure_ascii=False
         )
-        outfile = filename.replace(".doc_text_ne", ".doc_text_chapa_zunda")
+        outfile = filename.replace(".json", "") + "_chapa_zunda.json"
         with open(outfile, "w") as w:
             w.write(ss.encode("utf-8"))
         print "{} done.".format(filename)
@@ -139,11 +138,13 @@ def ne_to_chapas():
 
 
 def sep_noun():
-    for filename in glob.iglob('json/*.xml.doc_text.json'):
+    fi = glob.glob('json/*.xml.doc_text.json')
+    attr = "doc_text"
+    for filename in fi:
         data = json.load(open(filename))
-        ne_data = json.load(open(filename.replace('doc_text', 'only_ne')))
-        raw_data = json.load(open(filename.replace('doc_text', 'ne')))
-        pas_data = json.load(open(filename.replace('doc_text', 'pas.zunda')))
+        ne_data = json.load(open(filename.replace(attr, 'only_ne')))
+        raw_data = json.load(open(filename.replace(attr, 'ne')))
+        pas_data = json.load(open(filename.replace(attr, 'pas.zunda')))
         dumped_json = {}
         for t_id in data:
             dumped_json[t_id] = {}
@@ -167,7 +168,7 @@ def sep_noun():
             dumped_json, indent=4, sort_keys=True,
             ensure_ascii=False
         )
-        with open(filename.replace(".doc_text", ".doc_text_ne"), "w") as w:
+        with open(filename.replace(attr, attr + "_ne"), "w") as w:
             w.write(ss.encode("utf-8"))
         print "{} done.".format(filename)
         sys.stdout.flush()
@@ -253,5 +254,4 @@ def main():
 
 
 if __name__ == '__main__':
-    noun_to_doc(".doc_text")
-    noun_to_doc(".doc_text_ja")
+    ne_to_chapas()
